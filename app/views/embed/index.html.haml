@@ -1,0 +1,75 @@
+%body  
+  = render 'waiting'
+   
+  - if not @tours_by_priority.empty?
+    #general
+      #content
+        .inner-grid
+          - ft = @tours_by_priority.shift
+          %article.article01.featured
+            .article01-img
+              %a{href: UrlMaker.embed_show_product_url(@guid, ft.id, @currency, @locale), title: t('messages.read_more_about', :name => ft.name)}
+                %span.tag.tag-featured.icon-featured
+                  = "#{t('embed.index.featured')}"
+                .img-wrapper
+                  %img{alt: ft.name, height: '223', width: '338', src: ft.featured_image}
+            .article01-content
+              .article01-content-inner
+                %h2.title02
+                  %a{href: UrlMaker.embed_show_product_url(@guid, ft.id, @currency, @locale), title: ft.name}
+                    = "#{ft.name}"
+                %p.article01-description
+                  = raw("#{ft.featured_description}")
+                    
+              .bottom-box
+                .bottom-box-inner
+                  .bottom-box-left
+                    %span.price
+                      %span
+                        - if ft.price_descriptions.size > 1
+                          #{t('embed.index.price_from')}
+                      - if ft.has_price_in_currency?(@currency)
+                        - price = ft.lowest_price(@currency)
+                      - else
+                        - price = ft.lowest_price('USD')
+                      - cents = price.fractional.to_s[-2..-1] || "%02d" % price.fractional
+                      %span.currency> #{price.currency.iso_code}#{price.currency.symbol}
+                      #{price.format(:no_cents => true, :symbol => false)}
+                      -if not @currency.to_s.eql? 'CLP'
+                        %span.dec> #{price.currency.delimiter}#{cents}
+                  .bottom-box-right
+                    - #%a.btn01{href: "/embed_sc/reservation?scguid=#{@guid}&id=#{ft.id}&currency=#{@currency}", title: t('embed.index.add_to_cart')}= t('embed.index.reserve_now')
+                    %a.btn01{href: "/embed/show?toguid=#{@guid}&pid=#{ft.id}&currency=#{@currency}&locale=#{@locale}", title: t('embed.index.add_to_cart')}= t('embed.index.reserve_now')
+          .cell-grid 
+            - @tours_by_priority.each do |tour|
+              .cell-grid-col
+                %article.article01
+                  .article01-img
+                    %a{href: "/embed/show?toguid=#{@guid}&pid=#{tour.id}&currency=#{@currency}&locale=#{@locale}", title: t('messages.read_more_about') +" " + tour.name}
+                      /%span.tag.tag-new.icon-new Nuevo
+                      %span.price
+                        %span
+                          - if tour.price_descriptions.size > 1
+                            #{t('embed.index.price_from')}
+                        - if tour.has_price_in_currency?(@currency)
+                          - price = tour.lowest_price(@currency)
+                        - else
+                          - price = tour.lowest_price('USD')
+                        - cents = price.fractional.to_s[-2..-1] || "%02d" % price.fractional
+                        %span.currency> #{price.currency.iso_code}#{price.currency.symbol}
+                        #{price.format(:no_cents => true, :symbol => false)}
+                        -if not @currency.to_s.eql? 'CLP'
+                          %span.dec> #{price.currency.delimiter}#{cents}
+                      -if tour.images.size > 0
+                        %img{alt: tour.name, height: "143", width: "320", src: tour.images.first.image.url(:list)}/
+                      -else
+                        %img{alt: tour.name, height: "143", width: "320", src: asset_path("no-image-small.jpg")}/
+                  .article01-content
+                    .bottom-box
+                      .bottom-box-inner
+                        .bottom-box-left
+                          %h2.title02
+                            %a{href: "/embed/show?toguid=#{@guid}&pid=#{tour.id}&currency=#{@currency}&locale=#{@locale}", title: t('messages.read_more_about') +" " + tour.name}= tour.name
+                        .bottom-box-right
+                          - #%a.btn01{href: "/embed_sc/reservation?scguid=#{@guid}&id=#{tour.id}&currency=#{@currency}", title: t('embed.index.add_to_cart')}= t('embed.index.reserve_now')
+                          %a.btn01.btn01b{href: "/embed/show?toguid=#{@guid}&pid=#{tour.id}&currency=#{@currency}&locale=#{@locale}", title: t('embed.index.add_to_cart')}= t('embed.index.reserve_now')

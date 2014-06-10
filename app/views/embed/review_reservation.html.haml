@@ -1,0 +1,119 @@
+- content_for :head do
+  = javascript_include_tag "apdg"
+
+:javascript
+  var timer;
+  var guid;
+  $(document).ready(function() {
+      $('#paypal-submit').click(function(e){
+        e.preventDefault();
+        $('.errorpayment').hide();
+        if ($('#cartpaymentmethodpaypal:checked').val() != "2"){
+          $('.errorpayment').show();
+          return false;
+        }
+        else{
+          $('#paypal-submit').attr('target', "PPDGFrame");
+          dgFlowMini.setTrigger('paypal-submit');
+          dgFlowMini.startFlow('#{@payment_url}');
+          
+          guid = $(this).data("guid");
+          var loading = '<div id="loading" style="display: none;"><img id="spinner" src="#{asset_path ('gfx/loading.gif')}" width="128" /><div style="position:absolute; left: 35%; width: 30%;top:40%;text-align:center;font-size:15px;">#{escape_javascript t('embed.wait_for_payment')}</div></div>';
+          $(loading).prependTo('body').fadeIn();
+          timer = setInterval(function() {
+            $.get("/embed/poll?guid=" + guid + "&tickets=#{escape_javascript @tickets}", 
+              function(data) {
+                if (data.state == 'COMPLETED') {
+                  clearInterval(timer);
+                  window.location = "/embed/complete?guid=" + guid + "&tickets=#{escape_javascript @tickets}";
+                }
+                /*else{
+                  clearInterval(timer);
+                  $('#loading').fadeOut(400, function() {
+                    $(this).remove();
+                  });
+                }*/
+              }
+            );
+          }, 3000);
+          
+          return true;
+        }
+      });
+
+  });  
+  function windowClosed() {
+    clearInterval(timer);
+    $.get("/embed/poll?guid=" + guid + "&tickets=#{escape_javascript @tickets}", 
+      function(data) {
+        if (data.state == 'COMPLETED') {
+          window.location = "/embed/complete?guid=" + guid + "&tickets=#{escape_javascript @tickets}";
+        }
+        else {
+          $('#loading').fadeOut(400, function() {
+            $(this).remove();
+          });
+        }
+      }
+    );
+  }
+- curr = session[:currency]
+%body
+  = render 'waiting'
+  #general.cart
+    #content
+      .inner-grid
+        = render 'steps'
+        .grid-row.grid-row-01
+          .grid-col.grid-col-01a
+            .module01
+              .module01-inner
+                .box01
+                  %h2.title03 #{t('embed.payment_method')}
+                  %p #{t('embed.payment_method_info')}
+                  .form-row-inline
+                    -#%label.fancyradio{for: "cartpaymentmethodcard"}
+                    -#  %input#cartpaymentmethodcard.radio{name: "cartpaymentmethod", type: "radio", value: "1"}/
+                    -#  %span Tarjeta de crédito/débito
+                    %label.fancyradio{for: "cartpaymentmethodpaypal"}
+                      %input#cartpaymentmethodpaypal.radio{name: "cartpaymentmethod", type: "radio", value: "2"}/
+                      - es = @currency == 'es' ? '/es' : ''
+                      %span= raw t("embed.to_paypal", :href => link_to(t("embed.what_is_paypal"), "https://www.paypal.com"+es+"/webapps/mpp/paypal-popup", :target => "_blank"))             
+                  .form-row-inline.error-label.errorpayment{style: 'display: none'}
+                    #{t('embed.select_payment_method')}
+                %h2.title03 #{t('embed.purchase_data')}
+                .form02.form-filled
+                  .form-row
+                    .form-col-left
+                      %span #{t('activerecord.attributes.reservation.name')}
+                    .form-col-right
+                      %span.input-filled #{@rez.contact_name}
+                  .form-row
+                    .form-col-left
+                      %span #{t('activerecord.attributes.reservation.email')}
+                    .form-col-right
+                      %span.input-filled #{@rez.email}
+                  .form-row
+                    .form-col-left
+                      %span #{t('activerecord.attributes.reservation.phone')}
+                    .form-col-right
+                      %span.input-filled #{@rez.phone}
+                  -#.form-row
+                  -#  .form-col-left
+                  -#    %span Idioma
+                  -#  .form-col-right
+                  -#    %span.input-filled Español
+                  .form-row
+                    .form-col-left
+                      %span #{t('activerecord.attributes.reservation.comments')}
+                    .form-col-right
+                      %span.input-filled #{@rez.comments}
+                  .form-btn-box
+                    .right
+                      %a#paypal-submit.btn01.btn01b.large{href: "#{@payment_url}", onclick: "", title: "#{t('embed.pay_up')}", :data => {:guid => "#{@rez.guid}"}} #{t('embed.pay_up')}
+                    .left
+                      %a.btn01.medium{href: "/embed/edit_reservation?guid=#{@rez.guid}&id=#{@tour.id}&currency=#{curr}&people=#{@number_of_people}&tickets=#{@tickets}&locale=#{@locale}", title: t('embed.back_to', :to=>t('embed.personal_data'))} #{t('embed.form.back')}
+          .grid-col.grid-col-01b
+            = render 'cart_summary'
+  %script
+    var dgFlowMini = new PAYPAL.apps.DGFlowMini({ callbackFunction: windowClosed, trigger: null, expType: "mini" });

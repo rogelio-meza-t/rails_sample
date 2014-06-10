@@ -1,0 +1,76 @@
+%body
+  - if session[:location].eql? "embed"
+    - dest = "embed/?toguid"
+  - else
+    - dest = "embed_sc/?scguid"
+  - curr = session[:default_currency] || session[:currency]
+  - session.delete(:default_currency)
+  = render 'waiting'
+  #general.cart
+    %header#header
+      .inner-grid
+        #header-sub
+          %h1.title01 #{t('.success_title')}
+    #content
+      .inner-grid
+        .editor-content
+          %p #{t('.success_msg_html', :id => (@rez.id + 2000), :email => @rez.email, :href => link_to(t('embed.view_more_tours'), "/#{dest}=#{session[:guid]}&currency=#{curr}&locale=#{session[:locale]}"))}
+        .module01
+          .module01-inner
+            #table-cart.table01.confirm-table
+              .table-row.table-header
+                .table-cell-header.cell1 #{t('embed.my_purchase')}
+                .table-cell-header.cell2 #{t('embed.show.date')}
+                .table-cell-header.cell3 #{t('embed.hour')}
+                .table-cell-header.cell4 #{t('embed.show.people')}
+                .table-cell-header.cell5 #{t('embed.show.price')}
+              .table-row.odd
+                .table-cell.cell1
+                  .display-table
+                    .display-table-row
+                      .display-table-cell
+                        - img_src = @rez.scheduled_tour.product.product_images.size > 0 ? @rez.scheduled_tour.product.product_images.first.image.url(:thumb) : asset_path("no-image-small.jpg")
+                        %img{alt: "", height: "59", src: "#{img_src}", width: "90"}/
+                      .display-table-cell
+                        .title02.title02c #{@rez.scheduled_tour.product.name}
+                .table-cell.cell2 #{@rez.scheduled_tour.date}
+                .table-cell.cell3 #{@rez.scheduled_tour.product_schedule.start_time.strftime('%k:%M')}
+                .table-cell.cell4
+                  %ul
+                    - total = Money.new(0, @currency)
+                    - @tickets_parsed.each do |t|
+                      - price_description_id, quantity = t[0].to_i, t[1].to_i 
+                      - if quantity != 0
+                        - pd = PriceDescription.find_by_id(price_description_id)
+                        - desc = '('+ pd.description + ')' unless pd.description.blank?
+                        - price = pd.monetized_price_by_currency(@currency)
+                        - partial = price * quantity
+                        - total = total + partial
+                        %li
+                          #{t[1].to_s} #{pd.name}
+                          -if !pd.description.nil?
+                            %span.light= pd.description
+                .table-cell.cell5
+                  %span.price02 #{total.format}
+            #table-cart-footer.confirm-table
+              #table-cart-footer-left
+                 
+              #table-cart-footer-right
+                .display-table
+                  -##row-subtotal.display-table-row
+                  -#  #row-subtotal-text.display-table-cell
+                  -#    %span Subtotal
+                  -#  #row-subtotal-number.display-table-cell.currency
+                  -#    %span.price02 121,80 €
+                  -##row-code.display-table-row
+                  -#  .display-table-cell
+                  -#    %span Código descuento
+                  -#  .display-table-cell.currency
+                  -#    %span.price02 -10,50 €
+                  #row-total.display-table-row
+                    .display-table-cell
+                      %span #{t('embed.total')}
+                    .display-table-cell.currency
+                      %span.price02 #{total.format}
+        #loadmore
+          %a.btn01.large{href: "/#{dest}=#{session[:guid]}&currency=#{curr}&locale=#{session[:locale]}", title: "#{t('embed.view_more_tours')}"} #{t('embed.view_more_tours')}

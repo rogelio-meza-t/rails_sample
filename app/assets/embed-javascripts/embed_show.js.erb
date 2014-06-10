@@ -1,0 +1,181 @@
+selected_tour = "0";
+available_dates = new Array();
+day_schedules = Array();
+select = "<%= I18n.t('embed.show.select') %>"; 
+people = 0;
+max_people = 0;
+min_people = 0;
+
+$(window).bind("pageshow", function() {
+  if( $('#bookdate').val() != select){
+    getSchedules($('#bookdate')[0]);
+  }
+});
+
+$(document).ready(function(){
+  var dateToday = new Date();
+  
+  setBookticketError();
+  setAvailableDays();
+  
+  $('#bookdate').datepicker({
+    showOn: 'both',
+    buttonImageOnly: true,
+    buttonImage: '../assets/gfx/calendar_2x.png',
+    showOtherMonths: true,
+    selectOtherMonths: true,
+    dateFormat: 'dd/mm/yy',
+    minDate: dateToday,
+    beforeShowDay: availableDates
+  });
+});
+
+getAvailability = function(val){
+  selected_tour = val.options[val.selectedIndex].value;
+  selected_schedule = getScheduleById(selected_tour);
+
+  max_people = selected_schedule.max
+  min_people = selected_schedule.min;
+  $('.max-people').html(max_people);
+
+  $('select.select.bookticket option').remove();
+
+  $.each(prices, function(i, price){
+    
+    min = min_people
+    el = 'select.select.bookticket[data-id='+price.id+']';
+    $(el).prop('disabled', false);
+    if(price.min != null){
+      min = price.min
+    }
+    else{
+      if(prices.length > 1){
+        min = 1
+      }
+    }
+    
+    if (min > max_people){
+      $(el).prop('disabled', 'disabled');
+    }
+    else{
+      $(el).append($("<option></option>")
+       .attr("value", '0')
+       .text('0'));
+       
+      for (i=min; i<=max_people; i++){
+        $(el).append($("<option></option>")
+              .attr("value", i)
+              .text(i));
+      }
+    }
+  });
+  setPeople(-1);
+  setBookticketError();
+}
+
+resetPrices = function(){
+  $.each(prices, function(i, p){
+    prices[i].value = 0;
+  });
+}
+
+setPeople = function(val){
+  people = 0;
+  $('select.select.bookticket option:selected').each(function(){
+      people += parseInt($(this).val());
+    }
+  );
+  if (val >= 0 ){
+    prices[val].value = parseInt($('select.select.bookticket[data-index='+val+'] option:selected').val());
+  }
+  else
+  {
+    resetPrices();
+  }
+  setBookticketError();
+}
+
+getScheduleById = function(id){
+  id = parseInt(id);
+  var schedule;
+  $.each(day_schedules, function(i, item){
+    if(item.id == id){
+      schedule = item;
+      return;
+    }
+  });
+  return schedule;
+}
+
+getSchedules = function(date){
+  var date = date.value;
+  day_schedules.length = 0;
+  day_schedules = getSchedulesByDate(date);
+  $('#booktime option').remove();
+  $('#booktime')
+       .append($("<option></option>")
+       .attr("value", '0')
+       .text(select));
+
+  $.each(day_schedules, function(i, item){
+    $('#booktime')
+       .append($("<option></option>")
+       .attr("value", item.id)
+       .text(item.start_time)); 
+  });
+}
+
+getSchedulesByDate = function(date){
+  var schedules = Array();
+  $.each(available_tours, function(i, item){
+    if(item.date == date){
+      schedules.push(item);
+    }
+  });
+  return schedules;
+}
+
+setAvailableDays = function(){
+  $.each(available_tours, function(i,item){
+    available_dates.push(item.date)
+  });
+}
+
+availableDates = function(date) {
+  dmy = ("0" + date.getDate()).slice(-2) + "/" + ("0" + (date.getMonth() + 1)).slice(-2) + "/" + date.getFullYear();
+  if ($.inArray(dmy, available_dates) != -1) {
+    return [true, "","Available"];
+  } else {
+    return [false,"","unAvailable"];
+  }
+}
+
+setBookticketError = function(){
+  if(people == 0){
+    $('label[data-type=bookticket]').attr('data-onerror', "<%= I18n.t('embed.show.nobookticket_zero') %>");
+  }
+  else if (people < min_people){
+    mesg = "<%= I18n.t('embed.show.nobookticket_undermin') %>"
+    $('label[data-type=bookticket]').attr('data-onerror', mesg.replace('{min}', min_people));
+  }
+  else if (people > max_people){
+  mesg = "<%= I18n.t('embed.show.nobookticker_overmax') %>"
+    $('label[data-type=bookticket]').attr('data-onerror', mesg.replace('{max}', max_people));
+  }
+}
+
+buildParams = function(){
+  p = '';
+  $.each(prices, function(i,price){
+    p += price.id + ':' + price.value
+    if(i < prices.length-1){
+      p += ',';
+    }
+  });
+  return p
+}
+
+goBack = function(){
+  history.go(-1);
+  return false;
+}

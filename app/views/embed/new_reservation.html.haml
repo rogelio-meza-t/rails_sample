@@ -1,0 +1,90 @@
+:javascript
+  $(document).ready(function(){
+    $('.reservationClick').click(function(){
+      $('.form-horizontal').submit();
+    });
+  });
+ 
+- curr = session[:default_currency] || session[:currency] 
+%body
+  = render 'waiting'
+  #general.cart
+    %header#header
+      .inner-grid
+        #header-sub
+          %h1.title01 #{t('embed.my_purchase')}
+    #content
+      .inner-grid
+        = render 'steps'
+        - if flash[:notice]
+          .module-error{:style => 'display: block'}
+            = flash[:notice]
+        = form_for @rez, :url => @rez.new_record? ? reservation_create_path(@tour.product.tour_operator.guid, @tour.id) : reservation_update_path(@rez.guid, @tour.id), :html => {:class => "form-horizontal"} do |f|
+          = f.hidden_field :guid
+          = f.hidden_field :scheduled_tour_id
+          = f.hidden_field :number_of_people, value: @number_of_people
+          = hidden_field_tag :currency, @currency
+          = hidden_field_tag 'tickets', @tickets
+          .grid-row.grid-row-01
+            .grid-col.grid-col-01a
+              .module01
+                .module01-inner
+                  .form02
+                    .form-row
+                      .form-col-left.empty
+                        #{' '}
+                      .form-col-right
+                        %p.block-help *#{t('embed.required_fields')}
+                    .form-row
+                      .form-col-left
+                        %label{for: "cartname"} #{t(:name)}*
+                      .form-col-right
+                        - err_n = @rez.errors[:contact_name].empty? ? '' : ' error'
+                        = f.text_field :contact_name, class: 'input long03'+err_n, id: 'cartname'
+                        = f.error_message_on :contact_name, :css_class => "error-label"
+                    .form-row
+                      .form-col-left
+                        %label{for: "cartemail"} #{t(:email)}*
+                      .form-col-right
+                        - err_e = @rez.errors[:email].empty? ? '' : ' error'
+                        = f.text_field :email, class: 'input long03'+err_e, id: 'cartemail'
+                        = f.error_message_on :email, :css_class => "error-label"
+                    .form-row
+                      .form-col-left
+                        %label{for: "cartphone"} #{t(:phone)}
+                      .form-col-right
+                        - err_p = @rez.errors[:phone].empty? ? '' : ' error'
+                        = text_field_tag :phone_pre, nil, :class => 'input long01'
+                        = f.text_field :phone, class: 'input long02'+err_p, id: 'cartphone'
+                        = f.error_message_on :phone, :css_class => "error-label"
+                        %p.helpblock #{t('embed.phone_help')}
+                    -#.form-row
+                    -#  .form-col-left
+                    -#    %label{for: "cartlang"} #{t('embed.language')}
+                    -#  .form-col-right
+                    -#    %select#cartlang.select.small.long03{name: }
+                    -#      %option{value: ""} #{t('embed.show.select')}
+                    -#      %option{value: ""} #{t('embed.lang_spanish')}
+                    -#      %option{value: ""} #{t('embed.lang_english')}
+                    .form-row
+                      .form-col-left
+                        %label{for: "cartcomments"} #{t(:comments)}
+                      .form-col-right
+                        = f.text_area :comments, class: 'input long100', rows: '6', id: 'cartcomments'
+                        %p.helpblock #{t('embed.comments_info')}
+                    .form02-fieldset
+                      %label.fancycheckbox{for: "cartcondition"}
+                        - err_c = @rez.errors[:terms_and_conditions].empty? ? '' : ' error'
+                        = f.check_box :terms_and_conditions, class: 'checkbox'+err_c, id: 'cartcondition'
+                        -#%input#cartcondition.checkbox{name: "reservation[terms_and_conditions]", type: "checkbox"}/
+                        %span
+                          = t(:terms_and_conditions_label_html, :url => "#{root_url}embed/tandc?toguid=#{@tour.product.tour_operator.guid}#tandc")
+                        = f.error_message_on :terms_and_conditions, :css_class => "error-label"
+                    .form-btn-box
+                      .right
+                        %a.btn01.btn01b.large.reservationClick{href: "#", title: t('embed.next_to', :to => t('embed.payment'))} #{t('embed.form.continue')}
+                      .left
+                        %a.btn01.medium{href: "/embed/?toguid=#{session[:guid]}&currency=#{curr}&locale=#{session[:locale]}", title: t('embed.back_to', :to => t('embed.results.available_tours'))} #{t('embed.form.cancel')}
+            .grid-col.grid-col-01b
+              = render 'cart_summary'
+            

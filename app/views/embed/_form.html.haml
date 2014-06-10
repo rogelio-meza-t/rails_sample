@@ -1,0 +1,32 @@
+= form_for @rez, :url => @rez.new_record? ? reservation_create_path(@tour.product.tour_operator.guid, @tour.id) : reservation_update_path(@rez.guid, @tour.id), :html => {:class => "form-horizontal"} do |f|
+  %p= f.hidden_field :guid
+  %p= f.hidden_field :scheduled_tour_id
+  %p= f.hidden_field :number_of_people, value: @number_of_people
+  %p= hidden_field_tag :currency, @currency
+  .control-group
+    = f.label t(:name) + "*", :class => "control-label"
+    .controls
+      = f.text_field :contact_name
+      = f.error_message_on :contact_name
+  .control-group
+    = f.label t(:email) + "*", :class => "control-label"
+    .controls
+      = f.text_field :email
+      = f.error_message_on :email
+  .control-group
+    = f.label t(:phone), :class => "control-label"
+    .controls
+      = f.text_field :phone
+      = f.error_message_on :phone
+  .control-group
+    = f.label t(:comments), :class => "control-label"
+    .controls
+      %span.help-block= t("embed.form.pick_up_point_helper")
+      = f.text_area :comments, :size => "50x2"
+  .control-group.checkbox
+    = f.check_box :terms_and_conditions
+    = t(:terms_and_conditions_label_html, :url => "#{root_url}embed/tandc?toguid=#{@tour.product.tour_operator.guid}")
+    = f.error_message_on :terms_and_conditions
+  .control-group
+    .controls
+      %button.btn.btn-primary.reserve-btn{ :type => "submit", :id => "reserve-btn"}= t(".continue")

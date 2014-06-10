@@ -1,0 +1,33 @@
+%aside#cart-summary
+  %h3.title03= "#{t('embed.summary_purchase')}"
+  #cart-summary-code.display-table
+    - total = Money.new(0, @currency)
+    - @tickets_parsed.each do |t|
+      - price_description_id, quantity = t[0].to_i, t[1].to_i 
+      - if quantity != 0
+        - pd = PriceDescription.find_by_id(price_description_id)
+        .display-table-row
+          %span= "#{quantity} x #{pd.name}" 
+          - price = pd.monetized_price_by_currency(@currency)
+          - partial = price * quantity
+          - total = total + partial
+          %span.right= "#{@currency} #{partial}"
+  -##cart-summary-list
+  -#  %ul.display-table
+  -#    - @tickets.each do |t|        
+  -#      %li.even
+  -#        %span #{t[1]} x #{t[0]}
+  -#        %span.right #{@currency} #{@rez.scheduled_tour.product.price_in_currency(@currency).format}
+  -##cart-summary-subtotal.display-table
+  -#  .display-table-row
+  -#    %span Subtotal
+  -#    %span.right 69,90 €
+  -##cart-summary-code.display-table
+  -#  .display-table-row
+  -#    %span Código de descuento
+  -#    %span.right -10,50 €
+  = hidden_field_tag 'total', "#{@total}"
+  #cart-summary-total.display-table
+    .display-table-row
+      %span= "#{t('embed.total')}"
+      %span.right= "#{@currency} #{total}"

@@ -1,0 +1,249 @@
+#tour-details
+  position: relative
+  h1
+    padding-top: .3em
+    font-size: 3em
+    line-height: 1em
+  #more-details
+    display: none
+
+.group-size
+  @include text-with-icon(transparent, '/images/group.png')
+
+.available-spots, .start-time, .duration, #show-more-details, #show-comments
+  padding-left: 1em
+
+#more-details
+  padding: 1em 0 .2em
+
+.cancelled-tour
+  text-decoration: line-through
+
+.unavailable-tour
+  opacity: 80%
+  background: #ccddcc
+
+.uncancel-btn
+  @include button-with-icon($green1, '/images/checkmark.png')
+  position: absolute
+  top: 2.6em
+  right: 1em
+  color: #242424
+  text-decoration: none
+  &:hover
+    @include button-with-icon($green0, '/images/checkmark.png')
+    
+.cancel-tour
+  @include button-with-icon($red0, '/images/cancel.png')
+  position: absolute
+  top: 2.6em
+  right: 1em
+  color: white
+  text-decoration: none
+  &:hover
+    @include button-with-icon($red1, '/images/cancel.png')
+
+#show-add-reservation
+  @include button-with-icon($green, '/images/add.png')
+  color: black
+  text-decoration: none
+  margin-top: 1em
+  width: 125px
+
+#tour-actions
+  display: block
+  padding-top: 1em
+
+#edit-reservation
+  padding: 1em
+  a
+    padding: 4em
+  label
+    font-weight: normal
+  input, textarea
+    display: block
+    padding: .2em .3em
+    font-size: 100%
+  #errors
+    a
+      padding: 1em
+
+.grn-btn
+  @include button-with-icon($green, '/images/add.png')
+  color: black
+  text-decoration: none
+  margin-top: 1em
+  display: block
+  width: 125px
+  
+#more-comments
+  background-color: $light-gray
+  padding: 1em
+
+#comments-container
+  display: block
+
+#print-tour
+  color: #578F5C
+  @include text-with-icon(transparent, '/images/printer.png')
+  cursor: pointer
+
+#edit-comments
+  display: none
+  
+.tour-comments
+  padding-top: 1em
+  label
+    font-weight: normal
+  input, textarea
+    display: block
+    padding: .2em .3em
+    font-size: 100%
+    max-width: 85%
+  #errors
+    a
+      padding: 1em
+
+#cancel-confirm-dialog
+  display: none
+  background-color: $red0
+  color: white
+  padding: 0.5em
+  button
+    cursor: pointer
+
+    
+.add-reservation, .new-on-the-fly-tour
+  overflow: hidden
+  clear: both
+  padding: 1em 0em
+  a
+    padding: 4em
+  label
+    font-weight: normal
+  input, textarea
+    display: block
+    padding: .2em .3em
+    font-size: 100%
+  #errors
+    a
+      padding: 1em
+.reservations
+  padding-top: 1em
+  margin: 0
+  li
+    padding: .5em 0em
+    position: relative
+    .contact-name
+      font-weight: bold
+      padding-left: 1em
+    .group-size
+      position: absolute
+      top: 0
+      right: 0
+      @include text-with-icon(transparent, '/images/group.png')
+      font-weight: bold
+  .odd-row
+    background: white
+  .even-row
+    background: $green0
+  .reservation-selected
+    background: $salmon
+    margin-top: 0.5em
+    overflow: hidden
+  .reservation-header
+    cursor: pointer
+  .reservation-details
+    display: none
+  .email
+    @include text-with-icon(transparent, '/images/email.png')
+  .booking
+    @include text-with-icon(transparent, '/images/booking.png')
+  .phone
+    @include text-with-icon(transparent, '/images/mobile.png')
+    height: 1.2em
+  .comments
+    @include text-with-icon(transparent, '/images/comment.png')
+  .sales_channel
+    @include text-with-icon(transparent, '/images/feather.png')
+  .place_of_stay
+    @include text-with-icon(transparent, '/images/home.png')
+    height: 1.2em
+  #reservation-buttons
+    float: right
+    padding: 1em
+    .reservation-btn
+      color: white
+      text-decoration: none
+    .uncancel-reservation
+      @include button-with-icon($green1, '/images/checkmark.png')
+      &:hover
+        @include button-with-icon($green0, '/images/checkmark.png')
+    .edit-reservation
+      @include button-with-icon($green1, '/images/checkmark.png')
+      &:hover
+        @include button-with-icon($green0, '/images/checkmark.png')
+    .cancel-reservation
+      @include button-with-icon($red0, '/images/cancel.png')
+      &:hover
+        @include button-with-icon($red1, '/images/cancel.png')
+  .reservation-cancelled
+    text-decoration: line-through
+    color: $gray
+
+#edit-reservation
+  display: none
+  button
+    margin-top: 1em
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25)
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)
+    border-radius: 4px 4px 4px 4px
+    border-style: solid
+    border-width: 1px
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05)
+    -moz-border-bottom-colors: none
+    -moz-border-left-colors: none
+    -moz-border-right-colors: none
+    -moz-border-top-colors: none
+    padding: 0.5em 1em
+    cursor: pointer
+    color: white
+  .save-edit
+    background-color: #5BB75B
+    background-image: -moz-linear-gradient(center top , #62C462, #51A351)  
+    &:hover
+      background-color: #BD362F
+      color: #FFFFFF  
+  .cancel-edit
+    background-color: #DA4F49
+    background-image: -moz-linear-gradient(center top , #EE5F5B, #BD362F)   
+    &:hover
+      background-color: #BD362F
+      color: #FFFFFF
+  
+#add-new-reservation
+  display: none
+  padding: 1em
+  margin-top: 1em
+  background: $green0
+  button
+    border: solid 1px
+    border-color: black
+    background: $green1
+    cursor: pointer
+    padding: 0.5em
+  .error
+    padding: 1em
+    border: 1px solid tomato
+
+.green-btnX
+  background-color: #5BB75B
+  background-image: -moz-linear-gradient(center top , #62C462, #51A351)  
+  &:hover
+    color: #FFFFFF 
+.red-btn
+  background-color: #DA4F49
+  background-image: -moz-linear-gradient(center top , #EE5F5B, #BD362F)   
+  &:hover
+    background-color: #BD362F
+      color: #FFFFFF

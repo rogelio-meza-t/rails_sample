@@ -1,0 +1,4 @@
+CKEDITOR.editorConfig = (config) ->
+  config.language = "en"
+  config.removePlugins = 'table,tab,stylescombo,specialchar,panelbutton,menubutton,removeformat,pagebreak,magicline,listblock,fakeobjects,justify,indentlist,indentblock,indent,image,htmlwriter,horizontalrule,font,floatingspace,entities,enterkey,elementspath,colordialog,dialogui,colorbutton,format,menu,blockquote,contextmenu,liststyle,tabletools,flash,about,a11yhelp,maximize,dialogadvtab,bidi,clipboard,templates,div,resize,filebrowser,find,forms,iframe,smiley,language,link,newpage,pastetext,pastefromword,print,save,showblocks,selectall,sourcearea,preview,undo,scayt,wsc'
+  config.disableNativeSpellChecker = true

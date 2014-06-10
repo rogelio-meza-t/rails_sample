@@ -1,0 +1,568 @@
+//= require jquery
+//= require jquery-ui
+//= require html5shiv.js
+//= require jquery.ui.touch-punch.min.js
+//= require jquery.colorbox-min.js
+//= require jquery.flexslider-min.js
+
+
+/****
+***** Kuotus
+***** - Requires: jquery-1.10.2.min.js
+****/
+
+var windowH;
+var windowW;
+var windowWMob = 600;
+var touchscreen = false;
+var userAgent = navigator.userAgent;
+
+$(document).ready(function() {
+
+	$('html').removeClass('no-js');
+	
+	// Detect touchscreen
+	if ("ontouchstart" in document.documentElement) {
+		touchscreen = true;
+		$('body').addClass('touch');
+	}
+	
+	// Detect all version of IE
+	if (userAgent.match(/MSIE/i) || userAgent.match(/Trident/i)) {
+		$('body').addClass('msie');
+	}
+	// Detect Firefox
+	if (userAgent.match(/Firefox/i)) {
+		$('body').addClass('firefox');	
+	}	
+	// Detect Safari
+	if (userAgent.match(/Safari/i) && !userAgent.match(/chrome/i)) {
+		$('body').addClass('safari');
+	}
+	
+	windowH = $(window).height();
+	windowW = $(window).width();
+	
+	customHeight();
+	
+	// Sliders
+	var minVal;
+	var maxVal;
+	$('#price-slider').slider({
+		range: true,
+		min: 0,
+		max: 500,
+		values: [ 0, 500 ],
+		slide: function( event, ui ) {
+			minVal = ui.values[ 0 ];
+			maxVal = ui.values[ 1 ];
+			$(this).find('a:first').empty().prepend('<span class="minval">$'+ minVal + '</span>');
+			$(this).find('a:last').empty().prepend('<span class="maxval">$'+ + maxVal + '</span>');
+		},
+		stop: function( event, ui ) {
+			//Aqui iría la llamada para el filtro de precio
+			console.log('Precio mínimo: '+ minVal);
+			console.log('Precio máximo: '+ maxVal);
+		}
+	});
+	$('#price-slider').find('a:first').empty().prepend('<span class="minval">$' + $('#price-slider').slider( "values", 0 ) + '</span>');
+	$('#price-slider').find('a:last').empty().prepend('<span class="maxval">$' + $('#price-slider').slider( "values", 1 ) + '</span>');
+	
+	var minValDur;
+	var maxValDur;
+	$('#duration-slider').slider({
+		range: true,
+		min: 1,
+		max: 9,
+		values: [ 1, 9 ],
+		slide: function( event, ui ) {
+			minValDur = ui.values[ 0 ];
+			maxValDur = ui.values[ 1 ];
+			$(this).find('a:first').empty().prepend('<span class="minval">'+ minValDur + 'h</span>');
+			$(this).find('a:last').empty().prepend('<span class="maxval">'+ + maxValDur + 'h</span>');
+		},
+		stop: function( event, ui ) {
+			//Aqui iría la llamada para el filtro de duración
+			console.log('Duración mínima: '+ minValDur);
+			console.log('Duración máxima: '+ maxValDur);
+		}
+	});
+	$('#duration-slider').find('a:first').empty().prepend('<span class="minval">' + $('#duration-slider').slider( "values", 0 ) + 'h</span>');
+	$('#duration-slider').find('a:last').empty().prepend('<span class="maxval">' + $('#duration-slider').slider( "values", 1 ) + 'h</span>');
+		
+	// Datepicker 
+
+	$.datepicker.regional['es'] = {
+		clearText: 'Limpiar', clearStatus: '',
+		closeText: 'Cerrar', closeStatus: '',
+		prevText: '&#x3c;Ant', prevStatus: '',
+		prevBigText: '&#x3c;&#x3c;', prevBigStatus: '',
+		nextText: 'Sig&#x3e;', nextStatus: '',
+		nextBigText: '&#x3e;&#x3e;', nextBigStatus: '',
+		currentText: 'Hoy', currentStatus: '',
+		monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+		'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+		monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun',
+		'Jul','Ago','Sep','Oct','Nov','Dic'],
+		monthStatus: '', yearStatus: '',
+		weekHeader: 'Sm', weekStatus: '',
+		dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
+		dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
+		dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','S&aacute;'],
+		dayStatus: 'DD', dateStatus: 'D, M d',
+		dateFormat: 'dd/mm/yy', firstDay: 0,
+		initStatus: '', isRTL: false};
+	$.datepicker.setDefaults($.datepicker.regional['es']);
+
+
+
+	$('#filtersince').datepicker({
+		showOn: 'both',
+		buttonImageOnly: true,
+		buttonImage: '<%= asset_path ('gfx/calendar_2x.png') %>',
+		showOtherMonths: true,
+		selectOtherMonths: true,
+		dateFormat: 'dd/mm/yy',
+		defaultDate: 0,
+		onClose: function( selectedDate ) {
+			$( "#filteruntil" ).datepicker('option', 'minDate', selectedDate );
+		}
+	});
+	$('#filteruntil').datepicker({
+		showOn: 'both',
+		buttonImageOnly: true,
+		buttonImage: '<%= asset_path ('gfx/calendar_2x.png') %>',
+		showOtherMonths: true,
+		selectOtherMonths: true,
+		dateFormat: 'dd/mm/yy',
+		defaultDate: 0,
+		onClose: function( selectedDate ) {
+			$('#filtersince').datepicker('option', 'maxDate', selectedDate );
+		}
+	});		
+	
+	// Show filter
+	
+	$('#filter').css('left', -$('#filter').outerWidth());
+	$('.showFilter').click(function(e) {
+		e.preventDefault();
+		showFilter();
+	});
+	
+	// Apply filter	
+	
+	$('.applyFilter').click(function(e) {
+		e.preventDefault();
+		applyFilter();
+	});	
+	$('#general').on('click', function(e) {
+		if(!$(e.target).closest('#header').length && !$(e.target).closest('.showFilter').length) {
+			applyFilter();
+		}	
+	});
+	
+	$('.addFilter').change(function() {
+		//Aqui iría la llamada para los filtros de input, select, checkboxes y radiobutton
+		console.log($(this).attr('id'));
+	});
+
+	// Subcategories
+	
+	$('.fieldset-category-inner').hide();
+	$('label[data-target] input').change(function(e) {
+		e.preventDefault();
+		var subcat = $(this).closest('label').attr('data-target');
+		if ($(this).prop('checked')) {
+			$(subcat).slideDown();
+		} else {
+			$(subcat).slideUp().find('input[type="checkbox"]').prop('checked', false);
+		}
+	});	
+	
+	// Delete Filter
+	
+	$('#general').on('click', '.deleteFilter', function(e) {
+		e.preventDefault();
+		var currentTag = $(this);
+		var loading = '<div id="loading" style="display: none;"><img id="spinner" src="<%= asset_path ('gfx/calendar_2x.png') %>" width="128" /></div>'
+			
+		$(loading).prependTo('body').fadeIn(200, function() {
+			currentTag.closest('li').fadeOut(200, function() {
+				$(this).remove();
+			});
+		}).delay(4000).fadeOut(200, function() {
+			$(this).remove();	
+		});
+	});
+	
+	// Dropdown
+	
+	$('.dropdown-content').hide();
+	$('.dropdown').click(function(e) {
+		e.preventDefault();
+		var target = $(this).attr('href');
+		$(target).slideToggle();
+		$(this).toggleClass('active');
+	});
+	
+	// Tabs
+	
+	$('.tab-content').hide();
+	$('.tabs-list a').click(function(e) {
+		e.preventDefault();
+		var target = $(this).attr('href');
+		$(target).fadeIn().siblings().hide();
+		$(this).parent().addClass('current').siblings().removeClass('current');
+	});
+	$('.tabs-list').each(function(i,e) {
+		$(e).find('li:first-child a').click();
+	});
+	
+	$('.openTab').click(function(e) {
+		e.preventDefault();
+		$(this)
+			.parent()
+			.toggleClass('current')
+				.next('.tab-content-inner')
+				.slideToggle();
+	});
+	
+	// Lightbox
+	$(document).bind('cbox_open', function(){
+	    $('#cboxClose').addClass('cboxClose-hidden');
+	}).bind('cbox_complete', function(){
+	    $('#cboxClose').removeClass('cboxClose-hidden');
+	});	
+	
+	// Layer addToCart
+	$('#general, #colorbox').on('click', '.addToCart', function(e) {
+		e.preventDefault();
+		error = 0;
+		$(this).closest('form').find('.module-error').find('ul').empty().end().hide();
+		$(this).closest('form').find('[data-regexp]').each(function(i,input) {
+			var r = new RegExp($(input).attr("data-regexp"), "gi");
+			console.log($(input).val())
+			if(r.test($(input).val())) {
+				$(input).removeClass('error');
+			} else {
+				$(input).addClass('error');
+				error++;
+			}
+
+		});			
+		$(this).closest('form').find('[data-mandatory]').each(function(i,select) {
+			var v = $(select).val();
+			if (v != '0') {
+				$(select).removeClass('error');			
+			} else {
+				$(select).addClass('error');
+				error++;
+			}
+			
+		});
+		$(this).closest('form').find('select.select.bookticket').each(function(i, select){
+			if (people != 0  && max_people >= people && min_people <= people){
+				$(select).removeClass('error');
+			}
+			else{
+				$(select).addClass('error');
+				error++;
+			}
+		});
+		if (error == 0) {
+			
+			//borrar esta linea al incluir de nuevo el layer de las reservas
+			if($(this).attr('data-embed') != '1'){
+				window.location = '/embed_sc/reservation?scguid='+$(this).attr('data-guid')+'&id='+selected_tour+'&people='+people+'&tickets='+buildParams()+'&currency='+$(this).attr('data-currency')+'&locale='+$(this).attr('data-locale')
+			}
+			else{
+				window.location = '/embed/reservation?toguid='+$(this).attr('data-guid')+'&id='+selected_tour+'&people='+people+'&tickets='+buildParams()+'&currency='+$(this).attr('data-currency')+'&locale='+$(this).attr('data-locale')
+			}		
+			
+			// Aquí se enviarían los datos del formulario
+			//descomentar estas lineas al incluir de nuevo el layer de las reservas
+			/*
+			if ($(this).hasClass('editTour')) { 
+				// Proceso de compra: se tendría que actualizar la tabla con los datos nuevos
+				$.colorbox.close();
+			} else if (!$(this).hasClass('editTour')){
+				// Resto de la página: Sale la capa de confirmación
+				$(this).colorbox({
+					href: '#addedtocart',
+					transition : 'fade',
+					inline: true,
+					speed : 100,
+					opacity : 0.5,
+					title:  ' ',
+					closeButton	: false,
+					onComplete:function(){
+					
+					},
+					onClosed: function() {
+					}
+				});
+				
+			}
+			*/
+		} else {
+			ticket_count = 0;
+			// Rellenar texto de formulario con las etiquetas de los input y select erróneos
+			$('input.error, select.error').each(function(i,e) {
+				
+				var idError = $(e).attr('id');
+				
+				if(ticket_count == 0){					
+					var labelError = $('label[for="'+idError+'"]').attr('data-onerror');
+					$(this).closest('form').find('.module-error').find('ul').append('<li>'+labelError+'</li>');
+				}
+				ticket_count = (idError.indexOf('bookticket') >= 0) ? 1 : 0;
+			});
+			
+			$(this).closest('form').find('.module-error').slideDown(200, function () {
+				// Quitar capa cuando haya error en el formulario
+				if (!$(this).closest('#colorbox').length) {
+					$.colorbox.remove();
+				} else {
+					var width = $(this).closest('.layer01').width();
+					var height = $(this).closest('.module02').height();
+					$.colorbox.resize({width: width , height: height+50})
+					modalColHeight();
+				}
+			});
+		}
+		
+		
+	});
+	
+	$('.closeLayer').click(function(e) {
+		e.preventDefault();
+		$.colorbox.close();
+		$('.table-row').removeClass('activedelete');
+	});
+	
+	// Delete Tour
+	$('.deleteTour').colorbox({
+			href: '#deletetour',
+			transition : 'fade',
+			inline: true,
+			speed : 100,
+			opacity : 0.5,
+			title:  ' ',
+			closeButton	: false,
+			onOpen:function(){
+				$('#cboxClose').hide();
+				var title = $(this).closest('.table-row').find('.title02').text();
+				$('#tourName').text(title);
+				$(this).closest('.table-row').addClass('activedelete');
+			},
+			onClosed: function() {
+				$(this).closest('.table-row').removeClass('activedelete');
+			}
+	});	
+	
+	// Modify Tour
+	$('.modifyTour').colorbox({
+			href: '#modifytour',
+			transition : 'fade',
+			inline: true,
+			speed : 100,
+			opacity : 0.5,
+			title:  ' ',
+			closeButton	: true,
+			onComplete:function(){
+				modalColHeight();
+		
+			},
+			onClosed: function() {
+			}
+	});
+	
+	// Config Tour
+	$('.configTour').colorbox({
+			href: '#booktour',
+			transition : 'fade',
+			inline: true,
+			speed : 100,
+			opacity : 0.5,
+			title:  ' ',
+			closeButton	: true,
+			onComplete:function(){
+				modalColHeight();				
+			},
+			onClosed: function() {
+			}
+	});
+	
+	// Confirm delete from cart
+	$('#colorbox').on('click', '.confirmDelete', function(e) {
+		e.preventDefault();
+		$('.activedelete').fadeOut(200, function() {
+			$(this).remove();
+			$.colorbox.close();
+		});
+	});
+	// Text lightbox
+	$('.textLightbox').colorbox({
+			href: function(){ return this.href.replace('#',' #'); },
+			transition : 'fade',
+			speed : 100,
+			opacity : 0.5,
+			title:  ' ',
+			maxWidth: '620',
+			closeButton	: true,
+			onLoad:function(){
+				$('#colorbox').addClass('textLightbox-layer');
+			},
+			onComplete: function() {
+				if ($(window).width() < 650) {
+					$.colorbox.resize({
+						width : '90%',
+						height: '450px'
+					});
+				}
+			},
+			onClosed: function() {
+				$('#colorbox').removeClass('textLightbox-layer');
+			}
+	});
+	// Open config
+	$('.openConfig').click(function(e) {
+		e.preventDefault();
+		var target = $(this).attr('href');
+		$(target).hide().removeClass('hidden-mobile').slideDown();
+		var targetTop =  $(target).offset().top;
+		$('html:not(:animated), body:not(:animated)').animate({
+			scrollTop : targetTop-50
+		}, 500);
+	});
+
+	// Close layer
+	$('.closeLayer').click(function(e) {
+		e.preventDefault();
+		var target = $(this).attr('href');
+		$(target).slideUp();
+	});
+
+	$(window).resize(function() {
+		windowH = $(window).height();
+		windowW = $(window).width();
+		customHeight();
+	});
+	
+	$(window).load(function() {
+		setTimeout(function(){
+			$('#loading').fadeOut(400, function() {
+				$(this).remove();
+			});
+		},200);
+		
+		// Slider
+		if ($('#carousel').length) {
+			$('#carousel').flexslider({
+			  animation: "slide",
+			  controlNav: false,
+			  animationLoop: false,
+			  slideshow: false,
+			  itemWidth: 112,
+			  itemHeight: 74,
+			  itemMargin: 0,
+			  asNavFor: '#slider',				
+				start: function() {
+					$('#carousel .slides > li img').each(function(i,e) {
+						var imgWidth = $(e).width();
+						var imgHeight = $(e).height();
+						if (imgWidth/imgHeight > 1) {
+							//landscape
+							$(e).closest('li').addClass('landscape');
+							
+						} else {
+							//portrait
+							$(e).closest('li').addClass('portrait');
+						}
+					});
+				}
+			});
+		}
+
+		if ($('#slider').length) {
+			$('#slider').flexslider({
+			  animation: "slide",
+			  controlNav: false,
+			  animationLoop: false,
+			  slideshow: false,
+			  sync: '#carousel',
+				start: function() {
+					$('#slider .slides > li img').each(function(i,e) {
+						var imgWidth = $(e).width();
+						var imgHeight = $(e).height();
+						if (imgWidth/imgHeight > 1 && imgWidth/imgHeight > 1.778656126 ) {
+							//landscape
+							$(e).closest('li').addClass('landscape');
+							
+						} else {
+							//portrait
+							$(e).closest('li').addClass('portrait');
+						}
+					});
+				}
+			});
+		}
+
+	});
+
+});
+
+function customHeight() {
+	// Featured module height
+	if ($('.article01.featured').length) {
+		$('.article01.featured').each(function(i,e) {
+			var height = $(e).find('.article01-content').height();
+			$(e).find('.article01-img').css('height', height).find('img').css('height', height);
+		});
+	}
+	
+	// Filter scrollable height
+	if ($('#filter-scrollable').length) {
+		var filterHeight = windowH-50;
+		$('#filter-scrollable').css('height', filterHeight);
+	}
+
+}
+
+function modalColHeight() {
+	$("#booktour .grid-row, #modifytour .grid-row").each(function(i,e) {	
+		var item = $(e).find('.grid-col');
+				item.css('height', 'auto');
+		var itemArray = [];
+				itemArray.length = 0;
+
+		item.each(function(it,ev) {
+			var heightItem = $(ev).innerHeight();
+			itemArray.push(heightItem);				
+		});
+
+		var largest = Math.max.apply(Math, itemArray);				
+		item.css('height', largest);
+
+	});
+}
+
+function showFilter() {
+	$('#filter').animate({
+		'left': 0
+	});
+	$('#general').prepend('<span id="filterActive"></span>');
+	$('body').addClass('filteron');
+}
+
+function applyFilter() {
+	var width = $('#filter').outerWidth();
+	$('#filter').animate({
+		'left': -width
+	});
+	$('#filterActive').fadeOut(200, function() {
+		$(this).remove();
+	});
+	$('body').removeClass('filteron');
+	
+}

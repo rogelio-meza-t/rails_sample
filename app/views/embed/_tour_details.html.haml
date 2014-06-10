@@ -1,0 +1,39 @@
+.tour-details{:style => "display:block;"}
+  - if not @tour.product.description.blank?
+    %span.detail-title= t(:description)
+    .clearfix
+    %p.detail-text= raw @tour.product.description
+  - if not @tour.product.location.blank?
+    %span.detail-title= t(:location)
+    .clearfix
+    %p.detail-text= @tour.product.location
+  - if not @tour.product.meeting_point.blank?
+    %span.detail-title= t(:meeting_point)
+    .clearfix
+    %p.detail-text= @tour.product.meeting_point
+  - if not @tour.product.duration.blank?
+    %span.detail-title= t(:duration)
+    .clearfix
+    %p.detail-text= @tour.product.duration
+  - if not @tour.product.what_to_bring.blank?
+    %span.detail-title= t(:what_to_bring)
+    .clearfix
+    %p.detail-text= raw @tour.product.what_to_bring
+  - if not @tour.product.whats_included.blank?
+    %span.detail-title= t(:whats_included)
+    .clearfix
+    %p.detail-text= raw @tour.product.whats_included
+  - if not @tour.product.difficulty.blank?
+    %span.detail-title= t(:difficulty)
+    .clearfix
+    %p.detail-text= @tour.product.difficulty
+  - if not @tour.product.languages.blank?
+    %span.detail-title= t(:languages)
+    .clearfix
+    %p.detail-text= @tour.product.languages
+  %span.detail-title= t(:operated_by)
+  .clearfix
+  %p.detail-text= @tour.product.tour_operator.name
+  %span.detail-title= t(:operator_description)
+  .clearfix
+  %p.detail-text= raw @tour.product.tour_operator.description

@@ -1,0 +1,102 @@
+#pretty-date
+  padding: 0em 1em 1em 1em
+  overflow: hidden
+  h1
+    float: left
+    width: 50%
+    font-size: 4em
+    display: inline
+    text-align: center
+    margin-bottom: 0em
+  aside
+    float: right
+    width: 50%
+    margin-top: 1em
+    #week-day
+      font-weight: bold
+      line-height: 0
+    #month-year
+      line-height: 1em
+  
+.tour-scheduled
+  background: $salmon
+
+.has-cancelled
+  border-bottom: solid 1px $red0
+  
+.ui-datepicker
+  background: white
+
+.ui-datepicker-header
+  position: relative
+  background: $green0
+  padding: 1em
+  
+.ui-helper-clearfix:after
+  clear: both
+
+.ui-datepicker-prev
+  position: absolute
+  top: 2px
+  cursor: pointer
+  span
+    display: block
+    left: 50%
+    margin-left: -8px
+    margin-top: 1em
+    position: absolute
+
+.ui-datepicker-next
+  height: 1.8em
+  position: absolute
+  top: 2px
+  width: 1.8em
+  right: 2px
+  cursor: pointer
+  span
+    display: block
+    left: 50%
+    margin-left: -8px
+    margin-top: 1em
+    position: absolute
+
+.ui-icon 
+  background-image: url("/images/ui-icons_222222_256x240.png")
+  height: 16px
+  width: 16px
+  overflow: hidden
+  text-indent: -99999px
+
+.ui-icon-circle-triangle-e
+  background-position: -48px -192px
+
+.ui-icon-circle-triangle-w
+  background-position: -80px -192px
+  
+.ui-datepicker-title
+  font-weight: bold
+  text-align: center
+
+.ui-datepicker-calendar
+  width: 100%
+  td
+    text-align: center
+    padding: .2em
+    margin: .2em
+    &:hover
+      background: $green0
+      color: $gray
+      a
+        color: $gray
+
+.ui-state-default
+  text-decoration: none
+  color: $gray
+
+.ui-datepicker-today
+  border: 1px solid $gray
+
+.ui-datepicker-current-day
+  background: $green
+  a
+    color: white

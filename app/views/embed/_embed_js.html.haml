@@ -1,0 +1,5 @@
+- content_for :head do
+  :javascript
+    var available_tours = #{@available_tours.to_json};
+    var prices = #{@selected_tour.price_descriptions.order('id ASC').map{|v| {:id => v.id, :value => 0, :min => v.minimum}}.to_json}
+  = javascript_include_tag "embed_show"
